@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowLeft,
   Bell,
@@ -228,6 +228,27 @@ const EXTERNAL_SYSTEMS = [
   },
 ]
 
+const OPEN_POSITIONS = [
+  {
+    id: 'job-recepce-devet-skal',
+    title: 'Recepční',
+    location: 'Orea Hotel Devět Skal, Žďár nad Sázavou',
+    isNew: true,
+  },
+  {
+    id: 'job-kuchar-sklar',
+    title: 'Kuchař',
+    location: 'Orea Resort Sklář, Harrachov',
+    isNew: false,
+  },
+  {
+    id: 'job-provozni-pyramida',
+    title: 'Provozní manažer',
+    location: 'Orea Hotel Pyramida, Praha',
+    isNew: false,
+  },
+]
+
 function App() {
   const [activeTab, setActiveTab] = useState('home')
   const [demoProfile, setDemoProfile] = useState('recepce')
@@ -255,6 +276,10 @@ function App() {
   const [clockOutNote, setClockOutNote] = useState('')
   const [knowledgeQuery, setKnowledgeQuery] = useState('')
   const [knowledgeAnswer, setKnowledgeAnswer] = useState('')
+  const [referralStatus, setReferralStatus] = useState('')
+  const [requestStatus, setRequestStatus] = useState('')
+  const [whistleStatus, setWhistleStatus] = useState('')
+  const [equipmentStatus, setEquipmentStatus] = useState('')
   const [todoItems, setTodoItems] = useState(() =>
     createTodoItems(DEMO_PROFILES.recepce.pendingActions),
   )
@@ -321,6 +346,7 @@ function App() {
     ended: { label: 'Směna ukončená', tone: 'status-pill urgent' },
   }
   const currentShiftStatus = shiftStatusMeta[shiftAttendanceStatus]
+  const openPositionsRef = useRef(null)
 
   useEffect(() => {
     const shouldPromptClockIn =
@@ -413,6 +439,34 @@ function App() {
     setKnowledgeAnswer('Orea je nejlepší hotelový řetězec v Česku.')
   }
 
+  const shareReferralCode = async () => {
+    const referralCode = 'EVA-2026-REC'
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(referralCode)
+      }
+      setReferralStatus('Kód byl připraven ke sdílení.')
+    } catch {
+      setReferralStatus('Kód: EVA-2026-REC')
+    }
+  }
+
+  const jumpToOpenPositions = () => {
+    openPositionsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  const submitRequest = (requestLabel) => {
+    setRequestStatus(`Žádanka „${requestLabel}“ byla v demu založena.`)
+  }
+
+  const submitWhistleblowing = () => {
+    setWhistleStatus('Oznámení bylo v demu přijato do chráněného kanálu.')
+  }
+
+  const reportEquipmentIssue = () => {
+    setEquipmentStatus('Požadavek byl v demu odeslán IT podpoře.')
+  }
+
   const switchDemoProfile = () => {
     const nextProfile = demoProfile === 'recepce' ? 'housekeeping' : 'recepce'
     setDemoProfile(nextProfile)
@@ -446,6 +500,10 @@ function App() {
     setNpsSubmitted(false)
     setKnowledgeQuery('')
     setKnowledgeAnswer('')
+    setReferralStatus('')
+    setRequestStatus('')
+    setWhistleStatus('')
+    setEquipmentStatus('')
   }
 
   const handleDocumentAction = (label) => {
@@ -668,6 +726,23 @@ function App() {
                         </button>
                       ))}
                     </div>
+                  </div>
+                  <div className="list-item profile-section">
+                    <h3>Svěřené vybavení</h3>
+                    <div className="profile-list">
+                      <button type="button" className="profile-list-row">
+                        <span>iPhone 14 — přiděleno 15.3.2024</span>
+                        <ChevronRight size={16} strokeWidth={1.9} />
+                      </button>
+                      <button type="button" className="profile-list-row">
+                        <span>Notebook Lenovo T14 — přiděleno 1.9.2023</span>
+                        <ChevronRight size={16} strokeWidth={1.9} />
+                      </button>
+                    </div>
+                    <button type="button" className="text-button" onClick={reportEquipmentIssue}>
+                      Nahlásit závadu nebo potřebu nového vybavení
+                    </button>
+                    {equipmentStatus && <p className="status-message">{equipmentStatus}</p>}
                   </div>
                 </>
               ) : (
@@ -1170,17 +1245,123 @@ function App() {
             </article>
 
             <article className="card">
-              <h3>Dovolená</h3>
-              <p>Zbývá vám 6,5 dne</p>
-              <button type="button" className="primary">
-                Požádat o dovolenou
+              <h3>Žádanky a volno</h3>
+              <div className="list-item request-row">
+                <div>
+                  <p className="item-title">Dovolená</p>
+                  <p>Zbývá vám 6,5 dne</p>
+                </div>
+                <button type="button" className="primary">
+                  Požádat o dovolenou
+                </button>
+              </div>
+              <div className="list-item request-row">
+                <div>
+                  <p className="item-title">Propustka k lékaři</p>
+                </div>
+                <button type="button" className="secondary" onClick={() => submitRequest('Propustka k lékaři')}>
+                  Nová žádanka
+                </button>
+              </div>
+              <div className="list-item request-row">
+                <div>
+                  <p className="item-title">Sick day</p>
+                  <p>Zbývá: 2 ze 3 dnů</p>
+                </div>
+                <button type="button" className="secondary" onClick={() => submitRequest('Sick day')}>
+                  Nahlásit
+                </button>
+              </div>
+              <div className="list-item request-row">
+                <div>
+                  <p className="item-title">Služební cesta</p>
+                </div>
+                <button type="button" className="secondary" onClick={() => submitRequest('Služební cesta')}>
+                  Nová žádanka
+                </button>
+              </div>
+              <button type="button" className="text-button request-history-link">
+                Zobrazit historii žádanek
               </button>
+              {requestStatus && <p className="status-message">{requestStatus}</p>}
+            </article>
+
+            <article className="card">
+              <h3>Benefity</h3>
+              <div className="benefits-list">
+                <button type="button" className="benefit-row">
+                  <span>
+                    <span className="item-title">Pluxee karta</span>
+                    <span className="benefit-subtitle">Aktuální zůstatek: 2 400 Kč</span>
+                  </span>
+                  <ChevronRight size={16} strokeWidth={1.9} />
+                </button>
+                <button type="button" className="benefit-row">
+                  <span>
+                    <span className="item-title">Firemní slevy</span>
+                    <span className="benefit-subtitle">12 aktivních nabídek</span>
+                  </span>
+                  <ChevronRight size={16} strokeWidth={1.9} />
+                </button>
+              </div>
+              <p className="micro-label benefits-note">
+                Benefity jsou dostupné po skončení zkušební doby.
+              </p>
+            </article>
+
+            <article className="card referral-card">
+              <h3>Doporuč kolegu</h3>
+              <p className="referral-intro">
+                Znáte někoho, kdo by se k nám hodil? Za úspěšné doporučení získáte odměnu.
+              </p>
+              <p className="item-title">Váš kód: EVA-2026-REC</p>
+              <div className="dual-action-row">
+                <button type="button" className="secondary" onClick={shareReferralCode}>
+                  Sdílet kód
+                </button>
+                <button type="button" className="secondary" onClick={jumpToOpenPositions}>
+                  Zobrazit otevřené pozice
+                </button>
+              </div>
+              <p className="micro-label">Vaše doporučení: 1 aktivní, 0 přijatých</p>
+              {referralStatus && <p className="status-message">{referralStatus}</p>}
+            </article>
+
+            <article className="card" ref={openPositionsRef}>
+              <h3>Otevřené pozice</h3>
+              <div className="positions-list">
+                {OPEN_POSITIONS.map((position) => (
+                  <button key={position.id} type="button" className="position-row">
+                    <span>
+                      <span className="item-title">
+                        {position.title}
+                        {position.isNew ? <span className="status-pill info position-new-tag">Nové</span> : null}
+                      </span>
+                      <span className="position-subtitle">{position.location}</span>
+                    </span>
+                    <ChevronRight size={16} strokeWidth={1.9} />
+                  </button>
+                ))}
+              </div>
             </article>
 
             <article className="card">
               <h3>Pomoc</h3>
               <p>HR: hr@orea.cz</p>
               <p>Obvyklá doba odpovědi: do 24 hodin</p>
+            </article>
+
+            <article className="card whistleblowing-card">
+              <h3>Anonymní oznámení</h3>
+              <p className="whistleblowing-intro">
+                Chráněný kanál pro nahlášení neetického jednání v souladu se zákonem o ochraně
+                oznamovatelů.
+              </p>
+              <button type="button" className="primary" onClick={submitWhistleblowing}>
+                Podat oznámení
+              </button>
+              <p className="micro-label">Vaše identita zůstane chráněna.</p>
+              {whistleStatus && <p className="status-message">{whistleStatus}</p>}
             </article>
           </section>
         )}

@@ -42,12 +42,18 @@ Tento soubor doplňuje [APP_CURRENT_STATE.md](APP_CURRENT_STATE.md) a shrnuje **
 - **Dokumenty** — Pracovní smlouva + **Roční hodnocení za 2025**; obojí jen **Stáhnout**; před akcí stejný biometric sheet jako u systémů. Výplatní pásky z této karty jsou pryč (zůstávají v profilu z avataru).
 - **Orea Knowledge** — nový AI chatbot mock (`knowledge-card`) s polem pro dotaz a tlačítkem „Zeptat se“. Po odeslání se v demu zobrazí statická odpověď „Orea je nejlepší hotelový řetězec v Česku.“. Layout je připravený pro budoucí rozšíření na plný chat/RAG.
 - **Rozvoj a feedback** — karta se zaměstnaneckou spokojeností (NPS) (`nps-card`), škála 0–10, jedno kliknutí = odeslání v demu; stav `npsScore`, `npsSubmitted`; reset při `switchDemoProfile`.
-- Dovolená, Pomoc.
+- **Žádanky a volno** — karta rozšířená o více self-service typů (dovolená, propustka k lékaři, sick day, služební cesta) + link na historii žádanek.
+- **Benefity** — karta s položkami Pluxee karta (zůstatek) a Firemní slevy (počet nabídek) + poznámka o dostupnosti po zkušební době.
+- **Doporuč kolegu** — referral karta s kódem `EVA-2026-REC`, CTA pro sdílení a rychlý skok na otevřené pozice, včetně mock stavu doporučení.
+- **Otevřené pozice** — samostatná karta interního trhu práce se 3 ukázkovými pozicemi (včetně štítku „Nové“).
+- **Pomoc**.
+- **Anonymní oznámení** — whistleblowing karta s chráněným kanálem a CTA „Podat oznámení“ (demo potvrzení).
 
 ## Hlavička a profil (avatar)
 
 - Vpravo nahoře **avatar** (iniciály) otevírá **samostatnou obrazovku profilu** (`showProfileScreen`).
 - Profil: osobní údaje, e-mail (odvozený), HR kontakt; sekce **Výplatní pásky**, **Kurzy** (statusy), **Pozice v Orea** s proklikem do detailu pozice (`selectedPositionId`, data v `PROFILE_DETAILS`).
+- Profil obsahuje i sekci **Svěřené vybavení** (iPhone/Notebook) + akci „Nahlásit závadu nebo potřebu nového vybavení“ (demo status).
 - Šipka **Zpět** na profilu i v detailu pozice.
 
 ## 2FA / biometrie (demo)
