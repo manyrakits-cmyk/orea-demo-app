@@ -209,6 +209,8 @@ button {
   margin: 0 0 4px;
   font-weight: 600;
   color: var(--text);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .status-pill {
@@ -308,6 +310,7 @@ button {
   border-radius: 14px;
   background: #fff;
   padding: 11px;
+  min-width: 0;
 }
 
 .todo-item-row input[type='checkbox'] {
@@ -315,6 +318,13 @@ button {
   height: 16px;
   accent-color: #0f172a;
   cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.todo-item-row .item-title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
 }
 
 .todo-item-completed {
@@ -378,9 +388,11 @@ button {
 }
 
 .bottom-tabs {
-  position: fixed;
+  position: absolute;
+  left: 0;
+  right: 0;
   bottom: 0;
-  width: min(100%, 390px);
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   background: rgba(255, 255, 255, 0.82);
@@ -671,10 +683,16 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  min-width: 0;
 }
 
 .request-row p {
   margin: 0;
+}
+
+.request-row > div {
+  min-width: 0;
+  flex: 1;
 }
 
 .request-history-link {
@@ -700,6 +718,7 @@ button {
   background: #fff;
   padding: 11px;
   min-height: 46px;
+  min-width: 0;
 }
 
 .benefit-row .item-title,
@@ -713,6 +732,16 @@ button {
   display: block;
   color: #475569;
   font-size: 0.82rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.benefit-row > span,
+.position-row > span,
+.profile-list-row > span,
+.external-system-row > span {
+  min-width: 0;
+  flex: 1;
 }
 
 .benefits-note {
