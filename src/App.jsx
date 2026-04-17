@@ -249,6 +249,76 @@ const OPEN_POSITIONS = [
   },
 ]
 
+const LANGUAGE_OPTIONS = [
+  { value: 'cs', label: 'Čeština' },
+  { value: 'en', label: 'English' },
+  { value: 'uk', label: 'Українська' },
+  { value: 'tl', label: 'Filipino' },
+]
+
+const TRANSLATIONS = {
+  en: {
+    appName: 'OreaPeople',
+    demoMode: 'Demo mode',
+    homeOverview: "here is today's overview",
+    notifications: 'Notifications',
+    openUserProfile: 'Open user profile',
+    nextShift: 'Next shift',
+    nearestShifts: 'Upcoming shifts',
+    openShiftCalendar: 'More shifts',
+    openNearestShifts: 'Upcoming shifts',
+    requiresAttention: 'Requires attention',
+    noImportantMessage: 'There are no important updates today.',
+    todo: 'TO DO',
+    noTodoMessage: 'No tasks to confirm.',
+    askButton: 'Ask',
+    settings: 'Settings',
+    language: 'Language',
+    oreaDigiBuddy: 'Orea DigiBuddy',
+    oreaDigiBuddyAnswer: 'Orea DigiBuddy answer',
+  },
+  uk: {
+    appName: 'OreaPeople',
+    demoMode: 'Демо режим',
+    homeOverview: 'ось огляд на сьогодні',
+    notifications: 'Сповіщення',
+    openUserProfile: 'Відкрити профіль',
+    nextShift: 'Наступна зміна',
+    nearestShifts: 'Найближчі зміни',
+    openShiftCalendar: 'Наступні зміни',
+    openNearestShifts: 'Найближчі зміни',
+    requiresAttention: 'Потребує уваги',
+    noImportantMessage: 'Сьогодні немає важливих змін.',
+    todo: 'TO DO',
+    noTodoMessage: 'Немає завдань для підтвердження.',
+    askButton: 'Запитати',
+    settings: 'Налаштування',
+    language: 'Мова',
+    oreaDigiBuddy: 'Orea DigiBuddy',
+    oreaDigiBuddyAnswer: 'Відповідь Orea DigiBuddy',
+  },
+  tl: {
+    appName: 'OreaPeople',
+    demoMode: 'Demo mode',
+    homeOverview: 'narito ang iyong buod ngayong araw',
+    notifications: 'Mga notification',
+    openUserProfile: 'Buksan ang profile ng user',
+    nextShift: 'Susunod na shift',
+    nearestShifts: 'Mga paparating na shift',
+    openShiftCalendar: 'Mga susunod na shift',
+    openNearestShifts: 'Mga paparating na shift',
+    requiresAttention: 'Kailangang bigyan ng pansin',
+    noImportantMessage: 'Walang mahahalagang update ngayon.',
+    todo: 'TO DO',
+    noTodoMessage: 'Walang task na kailangang kumpirmahin.',
+    askButton: 'Magtanong',
+    settings: 'Settings',
+    language: 'Wika',
+    oreaDigiBuddy: 'Orea DigiBuddy',
+    oreaDigiBuddyAnswer: 'Sagot ng Orea DigiBuddy',
+  },
+}
+
 function App() {
   const [activeTab, setActiveTab] = useState('home')
   const [demoProfile, setDemoProfile] = useState('recepce')
@@ -276,6 +346,8 @@ function App() {
   const [clockOutNote, setClockOutNote] = useState('')
   const [knowledgeQuery, setKnowledgeQuery] = useState('')
   const [knowledgeAnswer, setKnowledgeAnswer] = useState('')
+  const [language, setLanguage] = useState('cs')
+  const [showShiftCalendar, setShowShiftCalendar] = useState(false)
   const [referralStatus, setReferralStatus] = useState('')
   const [requestStatus, setRequestStatus] = useState('')
   const [whistleStatus, setWhistleStatus] = useState('')
@@ -299,11 +371,12 @@ function App() {
   const hasImportantItems = importantFeed.length > 0
   const noImportantMessage = 'Dnes nejsou žádné důležité změny.'
   const gssData = profileData.gss
-  const gssScoreLabel = gssData.score.toLocaleString('cs-CZ', {
+  const locale = language === 'cs' ? 'cs-CZ' : language === 'uk' ? 'uk-UA' : 'en-US'
+  const gssScoreLabel = gssData.score.toLocaleString(locale, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })
-  const gssTargetLabel = gssData.target.toLocaleString('cs-CZ', {
+  const gssTargetLabel = gssData.target.toLocaleString(locale, {
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
   })
@@ -335,7 +408,7 @@ function App() {
     [todoItems],
   )
   const nowLabel = () =>
-    new Date().toLocaleTimeString('cs-CZ', {
+    new Date().toLocaleTimeString(locale, {
       hour: '2-digit',
       minute: '2-digit',
     })
@@ -347,6 +420,12 @@ function App() {
   }
   const currentShiftStatus = shiftStatusMeta[shiftAttendanceStatus]
   const openPositionsRef = useRef(null)
+  const nearestShiftsRef = useRef(null)
+
+  const t = (key, fallback) => {
+    if (language === 'cs') return fallback
+    return TRANSLATIONS[language]?.[key] || fallback
+  }
 
   useEffect(() => {
     const shouldPromptClockIn =
@@ -436,7 +515,13 @@ function App() {
   const submitKnowledgeQuery = (event) => {
     event.preventDefault()
     if (!knowledgeQuery.trim()) return
-    setKnowledgeAnswer('Orea je nejlepší hotelový řetězec v Česku.')
+    const answerByLanguage = {
+      cs: 'Orea je nejlepší hotelový řetězec v Česku.',
+      en: 'Orea is the best hotel chain in the Czech Republic.',
+      uk: 'Orea - найкраща готельна мережа в Чехії.',
+      tl: 'Ang Orea ang pinakamahusay na hotel chain sa Czech Republic.',
+    }
+    setKnowledgeAnswer(answerByLanguage[language] || answerByLanguage.cs)
   }
 
   const shareReferralCode = async () => {
@@ -595,6 +680,20 @@ function App() {
   const selectedQuickThread =
     quickThreads.find((thread) => thread.id === selectedQuickThreadId) || null
   const selectedEmail = emails.find((email) => email.id === selectedEmailId) || null
+  const today = new Date()
+  const calendarMonthDate = new Date(today.getFullYear(), today.getMonth(), 1)
+  const monthLabel = calendarMonthDate.toLocaleDateString(locale, { month: 'long', year: 'numeric' })
+  const firstDayOffset = (calendarMonthDate.getDay() + 6) % 7
+  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate()
+  const shiftDays = new Set(
+    shifts
+      .map((shift) => Number((shift.date.match(/\d{1,2}/) || [])[0]))
+      .filter((day) => Number.isInteger(day) && day >= 1 && day <= daysInMonth),
+  )
+  const calendarCells = Array.from({ length: firstDayOffset + daysInMonth }, (_, index) => {
+    if (index < firstDayOffset) return null
+    return index - firstDayOffset + 1
+  })
 
   const tabButton = (id, label, icon) => (
     <button
@@ -613,7 +712,7 @@ function App() {
   return (
     <>
       <div className="desktop-mode-switch">
-        <p className="micro-label">Demo režim</p>
+        <p className="micro-label">{t('demoMode', 'Demo režim')}</p>
         <button type="button" className="location-switch" onClick={switchDemoProfile}>
           Režim: {demoProfile === 'recepce' ? 'Recepce' : 'Housekeeping'}
         </button>
@@ -621,11 +720,13 @@ function App() {
       <div className="app-shell">
       <header className="top-bar">
         <div>
-          <p className="micro-label">Orea v kapse</p>
-          <h1>{profileData.employeeName.split(' ')[0]}, tady je dnešní přehled</h1>
+          <p className="micro-label">{t('appName', 'OreaPeople')}</p>
+          <h1>
+            {profileData.employeeName.split(' ')[0]}, {t('homeOverview', 'tady je dnešní přehled')}
+          </h1>
         </div>
         <div className="top-bar-actions">
-          <button type="button" className="icon-button" aria-label="Notifikace">
+          <button type="button" className="icon-button" aria-label={t('notifications', 'Notifikace')}>
             <Bell size={18} strokeWidth={1.9} />
             <span className="icon-dot" aria-hidden="true" />
           </button>
@@ -633,7 +734,7 @@ function App() {
             type="button"
             className="profile-avatar-button"
             onClick={() => setShowProfileScreen(true)}
-            aria-label="Otevřít profil uživatele"
+            aria-label={t('openUserProfile', 'Otevřít profil uživatele')}
           >
             <span className="profile-avatar">{employeeInitials}</span>
           </button>
@@ -673,6 +774,25 @@ function App() {
                   <div className="list-item">
                     <p className="item-title">Podpora HR</p>
                     <p>hr@orea.cz</p>
+                  </div>
+                  <div className="list-item profile-section">
+                    <h3>{t('settings', 'Nastavení')}</h3>
+                    <div className="profile-list">
+                      <label className="profile-setting-row">
+                        <span className="item-title">{t('language', 'Jazyk')}</span>
+                        <select
+                          value={language}
+                          onChange={(event) => setLanguage(event.target.value)}
+                          className="language-select"
+                        >
+                          {LANGUAGE_OPTIONS.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
                   </div>
                   <div className="list-item profile-section">
                     <h3>Výplatní pásky</h3>
@@ -784,7 +904,7 @@ function App() {
         {!showProfileScreen && activeTab === 'home' && (
           <section className="screen">
             <article className="card next-shift hero-card">
-              <p className="micro-label">Další směna</p>
+              <p className="micro-label">{t('nextShift', 'Další směna')}</p>
               <h2 className="shift-time">{shifts[0]?.time || 'Bez směny'}</h2>
               <p className="shift-date">{shifts[0]?.date || 'Dnes'}</p>
               <p className={currentShiftStatus.tone}>{currentShiftStatus.label}</p>
@@ -802,6 +922,13 @@ function App() {
                   ? `Vaše další směna: ${shifts[0].role} v ${shifts[0].location}`
                   : 'Dnes nemáte naplánovanou směnu.'}
               </p>
+              <button
+                type="button"
+                className="text-button shift-link shift-link-on-dark"
+                onClick={() => nearestShiftsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+              >
+                {t('openNearestShifts', 'Nejbližší směny')}
+              </button>
               <button
                 type="button"
                 className={`secondary location-toggle ${isAtShiftLocation ? 'is-active' : ''}`}
@@ -842,7 +969,7 @@ function App() {
             </article>
 
             <article className="card">
-              <h3>Vyžaduje pozornost</h3>
+              <h3>{t('requiresAttention', 'Vyžaduje pozornost')}</h3>
               {hasImportantItems ? (
                 importantFeed.map((update) => (
                   <div className="list-item" key={`home-important-${update.id}`}>
@@ -858,13 +985,13 @@ function App() {
                 ))
               ) : (
                 <div className="list-item">
-                  <p className="item-title">{noImportantMessage}</p>
+                  <p className="item-title">{t('noImportantMessage', noImportantMessage)}</p>
                 </div>
               )}
             </article>
 
             <article className="card home-todo-card">
-              <h3>TO DO</h3>
+              <h3>{t('todo', 'TO DO')}</h3>
               {sortedTodoItems.length > 0 ? (
                 <div className="todo-checklist list-item">
                   {sortedTodoItems.map((item) => (
@@ -883,7 +1010,7 @@ function App() {
                 </div>
               ) : (
                 <div className="list-item">
-                  <p className="item-title">Nemáte žádný úkol k potvrzení.</p>
+                  <p className="item-title">{t('noTodoMessage', 'Nemáte žádný úkol k potvrzení.')}</p>
                 </div>
               )}
             </article>
@@ -912,8 +1039,17 @@ function App() {
               </blockquote>
             </article>
 
-            <article className="card">
-              <h3>Nejbližší směny</h3>
+            <article className="card" ref={nearestShiftsRef}>
+              <div className="card-header-inline">
+                <h3>{t('nearestShifts', 'Nejbližší směny')}</h3>
+                <button
+                  type="button"
+                  className="text-button shift-link"
+                  onClick={() => setShowShiftCalendar(true)}
+                >
+                  {t('openShiftCalendar', 'Další směny')}
+                </button>
+              </div>
               {shifts.length === 0 ? (
                 <div className="list-item">
                   <p className="item-title">Žádné další směny nejsou naplánované.</p>
@@ -1111,7 +1247,7 @@ function App() {
                     })
                   ) : (
                     <div className="list-item">
-                      <p className="item-title">{noImportantMessage}</p>
+                      <p className="item-title">{t('noImportantMessage', noImportantMessage)}</p>
                     </div>
                   )}
                 </>
@@ -1130,7 +1266,7 @@ function App() {
             <article className="card external-systems-card">
               <h3>Další systémy</h3>
               <p className="external-systems-intro">
-                Přístup přes Orea v kapse jako druhý faktor. Na počítači by vás přihlášení v externím
+                Přístup přes OreaPeople jako druhý faktor. Na počítači by vás přihlášení v externím
                 systému nejdřív vyzvalo k potvrzení v této mobilní aplikaci (v demu neukazujeme).
               </p>
               <div className="external-systems-list">
@@ -1180,7 +1316,7 @@ function App() {
             </article>
 
             <article className="card knowledge-card">
-              <h3>Orea Knowledge</h3>
+              <h3>{t('oreaDigiBuddy', 'Orea DigiBuddy')}</h3>
               <p className="knowledge-intro">
                 AI asistent nad interní dokumentací. V budoucnu poběží nad RAG databází firemního
                 know-how.
@@ -1194,12 +1330,12 @@ function App() {
                   rows={3}
                 />
                 <button type="submit" className="primary">
-                  Zeptat se
+                  {t('askButton', 'Zeptat se')}
                 </button>
               </form>
               {knowledgeAnswer && (
                 <div className="knowledge-answer">
-                  <p className="micro-label">Orea Knowledge odpověď</p>
+                  <p className="micro-label">{t('oreaDigiBuddyAnswer', 'Orea DigiBuddy odpověď')}</p>
                   <p>{knowledgeAnswer}</p>
                 </div>
               )}
@@ -1372,6 +1508,37 @@ function App() {
         {tabButton('messages', 'Zprávy', <Mail size={18} strokeWidth={1.9} />)}
         {tabButton('more', 'Více', <Ellipsis size={18} strokeWidth={1.9} />)}
       </nav>
+
+      {showShiftCalendar && (
+        <div className="sheet-backdrop" onClick={() => setShowShiftCalendar(false)}>
+          <section
+            className="shift-sheet shift-calendar-sheet"
+            onClick={(event) => event.stopPropagation()}
+            aria-label="Další směny"
+          >
+            <p className="micro-label">{t('openShiftCalendar', 'Další směny')}</p>
+            <h3 className="calendar-month-label">{monthLabel}</h3>
+            <div className="shift-calendar-grid">
+              {calendarCells.map((day, index) => (
+                <div key={`calendar-cell-${index}`} className={`calendar-day ${day ? '' : 'calendar-day-empty'}`}>
+                  {day ? (
+                    <>
+                      <span>{day}</span>
+                      {shiftDays.has(day) ? <span className="shift-day-dot" aria-hidden="true" /> : null}
+                    </>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+            <p className="micro-label">Tečka označuje den s naplánovanou směnou.</p>
+            <div className="button-row">
+              <button type="button" className="secondary" onClick={() => setShowShiftCalendar(false)}>
+                Zavřít
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
 
       {showShiftSheet && (
         <div className="sheet-backdrop" onClick={() => setShowShiftSheet(false)}>
