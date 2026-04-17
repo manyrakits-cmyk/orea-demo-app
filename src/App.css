@@ -175,6 +175,18 @@ button {
   font-weight: 500;
 }
 
+.shift-date-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.shift-date-row .shift-date {
+  margin: 0;
+}
+
 .home-todo-card {
   background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
   border-color: #cbd5e1;
