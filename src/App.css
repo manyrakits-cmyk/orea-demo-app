@@ -290,7 +290,9 @@ button {
   padding: 0;
   background: transparent;
   color: #334155;
-  font-weight: 600;
+  font-weight: 500;
+  border: none;
+  box-shadow: none;
 }
 
 .card-header-inline {
@@ -673,6 +675,10 @@ button {
 
 .profile-list-row-static {
   cursor: default;
+}
+
+.onboarding-info-row {
+  align-items: flex-start;
 }
 
 .profile-bullet-list {

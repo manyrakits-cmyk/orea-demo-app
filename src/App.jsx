@@ -1449,6 +1449,12 @@ function App() {
   const [requestStatus, setRequestStatus] = useState('')
   const [whistleStatus, setWhistleStatus] = useState('')
   const [equipmentStatus, setEquipmentStatus] = useState('')
+  const [showOnboardingAccountModal, setShowOnboardingAccountModal] = useState(false)
+  const [onboardingBankAccount, setOnboardingBankAccount] = useState('')
+  const [onboardingCorrespondenceEmail, setOnboardingCorrespondenceEmail] = useState('')
+  const [onboardingChildrenCount, setOnboardingChildrenCount] = useState('')
+  const [onboardingSpouse, setOnboardingSpouse] = useState('')
+  const [onboardingStatus, setOnboardingStatus] = useState('')
   const [todoItems, setTodoItems] = useState(() =>
     createTodoItems(getLocalizedProfileData('recepce', 'cs').pendingActions),
   )
@@ -1647,6 +1653,22 @@ function App() {
     setEquipmentStatus(t('equipmentReported', 'Požadavek byl v demu odeslán IT podpoře.'))
   }
 
+  const openOnboardingAccountModal = () => {
+    setShowOnboardingAccountModal(true)
+  }
+
+  const closeOnboardingAccountModal = () => {
+    setShowOnboardingAccountModal(false)
+  }
+
+  const submitOnboardingAccountSetup = (event) => {
+    event.preventDefault()
+    setOnboardingStatus(
+      t('onboardingAccountSaved', 'Onboarding údaje byly v demu uloženy.'),
+    )
+    setShowOnboardingAccountModal(false)
+  }
+
   const switchDemoProfile = () => {
     const nextProfile = demoProfile === 'recepce' ? 'housekeeping' : 'recepce'
     setDemoProfile(nextProfile)
@@ -1684,6 +1706,12 @@ function App() {
     setRequestStatus('')
     setWhistleStatus('')
     setEquipmentStatus('')
+    setShowOnboardingAccountModal(false)
+    setOnboardingBankAccount('')
+    setOnboardingCorrespondenceEmail('')
+    setOnboardingChildrenCount('')
+    setOnboardingSpouse('')
+    setOnboardingStatus('')
   }
 
   const handleDocumentAction = (label) => {
@@ -2046,6 +2074,42 @@ function App() {
                         </select>
                       </label>
                     </div>
+                  </div>
+                  <div className="list-item profile-section">
+                    <h3>{t('onboarding', 'Onboarding')}</h3>
+                    <div className="profile-list">
+                      <div className="profile-list-row profile-list-row-static onboarding-info-row">
+                        <span>
+                          <strong>
+                            {t(
+                              'onboardingWelcomeText',
+                              'Vítejte v OREA, vážíme si, že jste si nás vybral a těšíme se na spolupráci',
+                            )}
+                          </strong>
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        className="profile-list-row"
+                        onClick={openOnboardingAccountModal}
+                      >
+                        <span>
+                          <strong>{t('setupAccount', 'Nastavit účet')}</strong>
+                        </span>
+                        <ChevronRight size={16} strokeWidth={1.9} />
+                      </button>
+                      <div className="profile-list-row profile-list-row-static onboarding-info-row">
+                        <span>
+                          <strong>{t('onboarding', 'Onboarding')}</strong>
+                          <br />
+                          {t(
+                            'onboardingCourseText',
+                            'Začněte s kurzem Guest Care Standards',
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                    {onboardingStatus && <p className="status-message">{onboardingStatus}</p>}
                   </div>
                   <div className="list-item profile-section">
                     <h3>{t('payrolls', 'Výplatní pásky')}</h3>
@@ -3049,6 +3113,63 @@ function App() {
                 {t('cancel', 'Zrušit')}
               </button>
             </div>
+          </section>
+        </div>
+      )}
+      {showOnboardingAccountModal && (
+        <div className="sheet-backdrop" onClick={closeOnboardingAccountModal}>
+          <section
+            className="shift-sheet"
+            onClick={(event) => event.stopPropagation()}
+            aria-label={t('setupAccount', 'Nastavit účet')}
+          >
+            <p className="micro-label">{t('onboarding', 'Onboarding')}</p>
+            <h3>{t('setupAccount', 'Nastavit účet')}</h3>
+            <form className="swap-form" onSubmit={submitOnboardingAccountSetup}>
+              <label>
+                {t('bankAccount', 'Bankovní účet')}
+                <input
+                  type="text"
+                  value={onboardingBankAccount}
+                  onChange={(event) => setOnboardingBankAccount(event.target.value)}
+                  required
+                />
+              </label>
+              <label>
+                {t('correspondenceEmail', 'Korespondenční email')}
+                <input
+                  type="email"
+                  value={onboardingCorrespondenceEmail}
+                  onChange={(event) => setOnboardingCorrespondenceEmail(event.target.value)}
+                  required
+                />
+              </label>
+              <label>
+                {t('childrenCount', 'Počet dětí')}
+                <input
+                  type="number"
+                  min="0"
+                  value={onboardingChildrenCount}
+                  onChange={(event) => setOnboardingChildrenCount(event.target.value)}
+                />
+              </label>
+              <label>
+                {t('spouse', 'Manželka')}
+                <input
+                  type="text"
+                  value={onboardingSpouse}
+                  onChange={(event) => setOnboardingSpouse(event.target.value)}
+                />
+              </label>
+              <div className="button-row">
+                <button type="submit" className="primary">
+                  {t('save', 'Uložit')}
+                </button>
+                <button type="button" className="secondary" onClick={closeOnboardingAccountModal}>
+                  {t('cancel', 'Zrušit')}
+                </button>
+              </div>
+            </form>
           </section>
         </div>
       )}
